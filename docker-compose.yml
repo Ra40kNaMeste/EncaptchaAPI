@@ -1,0 +1,9 @@
+services:
+  encaptchaapi:
+    image: ${DOCKER_REGISTRY-}encaptchaapi
+    build:
+      context: .
+      dockerfile: EncaptchaAPI/Dockerfile
+  mssql:
+    container_name: sql-server
+    image: mcr.microsoft.com/mssql/server:2022-latest

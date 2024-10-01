@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncaptchaAPI", "EncaptchaAPI\EncaptchaAPI.csproj", "{902B9F56-3E32-4085-8CEC-68EAA4E483C9}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{DBC9243D-BD09-4F1F-97CC-A9908BA02EE8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{902B9F56-3E32-4085-8CEC-68EAA4E483C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{902B9F56-3E32-4085-8CEC-68EAA4E483C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{902B9F56-3E32-4085-8CEC-68EAA4E483C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{902B9F56-3E32-4085-8CEC-68EAA4E483C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBC9243D-BD09-4F1F-97CC-A9908BA02EE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBC9243D-BD09-4F1F-97CC-A9908BA02EE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBC9243D-BD09-4F1F-97CC-A9908BA02EE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBC9243D-BD09-4F1F-97CC-A9908BA02EE8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95EA6E35-D9BF-43D7-8F88-19C27BCFC343}
+	EndGlobalSection
+EndGlobal

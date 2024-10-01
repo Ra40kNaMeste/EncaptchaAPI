@@ -1,0 +1,6 @@
+@EncaptchaAPI_HostAddress = http://localhost:5037
+
+GET {{EncaptchaAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
