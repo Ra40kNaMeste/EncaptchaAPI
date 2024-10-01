@@ -14,6 +14,18 @@ namespace EncaptchaAPI
         {
             Database.EnsureCreated();
         }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Customer>()
+                .HasIndex(i => i.Email)
+                .IsUnique();
+
+            builder.Entity<Employee>()
+                .HasIndex(i => i.Email)
+                .IsUnique();
+
+            base.OnModelCreating(builder);
+        }
     }
     public class Customer
     {

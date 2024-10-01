@@ -48,7 +48,7 @@ namespace EncaptchaAPI.Controllers
             return Ok();
         }
 
-        private UserContext _context;
+        private readonly UserContext _context;
     }
     public record class CustomerData(string Email, string Password);
 }
