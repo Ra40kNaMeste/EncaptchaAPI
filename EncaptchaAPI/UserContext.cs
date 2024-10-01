@@ -58,5 +58,6 @@ namespace EncaptchaAPI
         public TaskMode Mode { get; set; }
         public Customer Customer { get; set; }
         public Employee? Employee { get; set; }
+        public byte[] Captcha { get; set; }
     }
 }

@@ -29,13 +29,14 @@ namespace EncaptchaAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostCustomer(CustomerData customer) 
         {
-            await _context.Customers.AddAsync(new()
+            var item = new Customer()
             {
                 Email = customer.Email,
                 Password = customer.Password
-            });
+            };
+            await _context.Customers.AddAsync(item);
             await _context.SaveChangesAsync();
-            return Ok(_context.Customers.Where(i=>i.Email == customer.Email));
+            return Ok(item);
         }
 
 
