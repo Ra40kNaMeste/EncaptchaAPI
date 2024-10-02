@@ -25,22 +25,6 @@ namespace EncaptchaAPI.Controllers
             return Ok(await _context.Users.FirstAsync(c => c.Id == id));
         }
 
-        [Route("customers")]
-        [HttpPost]
-        public async Task<IActionResult> PostUser(UserData customer) 
-        {
-            var item = new User()
-            {
-                Email = customer.Email,
-                Password = customer.Password,
-                JobTitle = customer.Title
-            };
-            await _context.Users.AddAsync(item);
-            await _context.SaveChangesAsync();
-            return Ok(item);
-        }
-
-
         [Route("customer/{id}")]
         [HttpDelete]
         public async Task<IActionResult> DeleteUser(int id)
@@ -55,5 +39,4 @@ namespace EncaptchaAPI.Controllers
 
         private readonly UserContext _context;
     }
-    public record class UserData(string Email, string Password, JobTitles Title);
 }

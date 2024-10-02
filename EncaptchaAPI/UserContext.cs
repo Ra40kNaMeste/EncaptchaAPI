@@ -19,6 +19,14 @@ namespace EncaptchaAPI
                 .HasIndex(i => i.Email)
                 .IsUnique();
 
+            builder.Entity<User>()
+                .HasMany(i => i.CustomeredTasks)
+                .WithOne(i => i.Customer);
+
+            builder.Entity<User>()
+                .HasMany(i => i.CompletedTasks)
+                .WithOne(i => i.Employee);
+
             base.OnModelCreating(builder);
         }
     }
@@ -35,7 +43,8 @@ namespace EncaptchaAPI
         public string Password { get; set; }
         public JobTitles JobTitle { get; set; }
         public int Cache { get; set; }
-        public List<CaptchaTask> Tasks { get; set; }
+        public List<CaptchaTask> CustomeredTasks { get; set; }
+        public List<CaptchaTask> CompletedTasks { get; set; }
     }
 
     public enum TaskMode

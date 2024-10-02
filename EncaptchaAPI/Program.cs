@@ -15,6 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton(builder.Configuration.GetSection("Prices").Get<PricesSettings>());
 
 var config = builder.Configuration.GetSection("Authorization").Get<AuthorizationSettings>();
+builder.Services.AddSingleton(config);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -58,7 +59,7 @@ public class AuthorizationSettings
     public string Issures { get; set; }
     public string Audience { get; set; }
     public string Key { get; set; }
-    public string ExpiresHours { get; set; }
+    public int ExpiresHours { get; set; }
 }
 
 public class PricesSettings
