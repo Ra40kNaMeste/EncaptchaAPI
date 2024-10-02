@@ -7,7 +7,11 @@ namespace EncaptchaAPI.Controllers
 {
     public class CaptchaTaskController : Controller
     {
-        public CaptchaTaskController(UserContext context) { _context = context; }
+        public CaptchaTaskController(UserContext context, PricesSettings prices) 
+        { 
+            _context = context;
+            _prices = prices;
+        }
 
         [Route("captures")]
         [HttpGet]
@@ -31,7 +35,7 @@ namespace EncaptchaAPI.Controllers
 
         [Route("captures")]
         [HttpPost]
-        public async Task<IActionResult> PostEmployee(IFormFile file)
+        public async Task<IActionResult> PostCaptcha(IFormFile file)
         {
             var bytes = new byte[file.Length];
             using var stream = file.OpenReadStream();
@@ -53,13 +57,14 @@ namespace EncaptchaAPI.Controllers
 
         [Route("captcha/{id}")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteCustomer(int id)
+        public async Task<IActionResult> DeleteCaptcha(int id)
         {
-            _context.Employees.Remove(_context.Employees.First(c => c.Id == id));
+            _context.Captures.Remove(_context.Captures.First(c => c.Id == id));
             await _context.SaveChangesAsync();
             return Ok();
         }
 
+        private readonly PricesSettings _prices;
         private readonly UserContext _context;
     }
 }

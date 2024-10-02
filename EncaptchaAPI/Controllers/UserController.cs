@@ -13,28 +13,29 @@ namespace EncaptchaAPI.Controllers
 
         [Route("customers")]
         [HttpGet]
-        public async Task<IAsyncEnumerable<Customer>> GetCustomes()
+        public async Task<IAsyncEnumerable<User>> GetUsers()
         {
-            return _context.Customers.AsAsyncEnumerable();
+            return _context.Users.AsAsyncEnumerable();
         }
 
         [Route("customer/{id}")]
         [HttpGet]
-        public async Task<IActionResult> GetCustomer(int id)
+        public async Task<IActionResult> GetUser(int id)
         {
-            return Ok(await _context.Customers.FirstAsync(c => c.Id == id));
+            return Ok(await _context.Users.FirstAsync(c => c.Id == id));
         }
 
         [Route("customers")]
         [HttpPost]
-        public async Task<IActionResult> PostCustomer(CustomerData customer) 
+        public async Task<IActionResult> PostUser(UserData customer) 
         {
-            var item = new Customer()
+            var item = new User()
             {
                 Email = customer.Email,
-                Password = customer.Password
+                Password = customer.Password,
+                JobTitle = customer.Title
             };
-            await _context.Customers.AddAsync(item);
+            await _context.Users.AddAsync(item);
             await _context.SaveChangesAsync();
             return Ok(item);
         }
@@ -42,14 +43,17 @@ namespace EncaptchaAPI.Controllers
 
         [Route("customer/{id}")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteCustomer(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            _context.Customers.Remove(_context.Customers.First(c => c.Id == id));
+            var user = await _context.Users.FirstAsync(c => c.Id == id);
+            //if (user.JobTitle >= JobTitles.Admin)
+            //    return BadRequest("You don't have enough rights");
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
         private readonly UserContext _context;
     }
-    public record class CustomerData(string Email, string Password);
+    public record class UserData(string Email, string Password, JobTitles Title);
 }
