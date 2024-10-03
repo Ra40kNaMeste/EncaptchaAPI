@@ -22,17 +22,17 @@ namespace EncaptchaAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> RegistrationUser(RegisterData data)
         {
-            if (data.Title >= JobTitles.Admin)
+            if (data.Title >= Roles.Admin)
                 return BadRequest("Title isn't correct");
             var item = new User()
             {
                 Email = data.Email,
                 Password = data.Password,
-                JobTitle = data.Title
+                Role = data.Title
             };
             await _context.Users.AddAsync(item);
             await _context.SaveChangesAsync();
-            return Ok(CreateJwtToken(item, _settings));
+            return Ok(CreateJwtToken(item));
         }
 
         [Route("login")]
@@ -44,24 +44,24 @@ namespace EncaptchaAPI.Controllers
                 return BadRequest("User not found");
             if (user.Password != data.Password)
                 return BadRequest("Password isn't correct");
-            return Ok(CreateJwtToken(user, _settings));
+            return Ok(CreateJwtToken(user));
         }
 
 
-        public static string CreateJwtToken(User user, AuthorizationSettings settings)
+        private string CreateJwtToken(User user)
         {
             var claims = new List<Claim> 
             { 
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.JobTitle.ToString())
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, Enum.GetName(user.Role))
             };
 
             var jwt = new JwtSecurityToken(
-                    issuer: settings.Issures,
-                    audience: settings.Audience,
+                    issuer: _settings.Issures,
+                    audience: _settings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.Add(TimeSpan.FromHours(settings.ExpiresHours)),
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key)), SecurityAlgorithms.HmacSha256));
+            expires: DateTime.UtcNow.Add(TimeSpan.FromHours(_settings.ExpiresHours)),
+                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key)), SecurityAlgorithms.HmacSha256));
 
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
@@ -70,5 +70,5 @@ namespace EncaptchaAPI.Controllers
         private readonly UserContext _context;
     }
     public record class LoginData(string Email, string Password);
-    public record class RegisterData(string Email, string Password, JobTitles Title) : LoginData(Email, Password);
+    public record class RegisterData(string Email, string Password, Roles Title) : LoginData(Email, Password);
 }

@@ -31,20 +31,31 @@ namespace EncaptchaAPI
         }
     }
 
-    public enum JobTitles
+    public enum Roles
     {
         Employee, Customer, Admin
     }
-    public class User
+    public class User : UserView
     {
-        [Key]
-        public int Id { get; set; }
-        public string Email { get; set; }
         public string Password { get; set; }
-        public JobTitles JobTitle { get; set; }
         public int Cache { get; set; }
         public List<CaptchaTask> CustomeredTasks { get; set; }
         public List<CaptchaTask> CompletedTasks { get; set; }
+    }
+
+    public class UserView
+    {
+        public UserView() { }
+        public UserView(UserView target)
+        {
+            Id = target.Id;
+            Email = target.Email;
+            Role = target.Role;
+        }
+        [Key]
+        public int Id { get; set; }
+        public string Email { get; set; }
+        public Roles Role { get; set; }
     }
 
     public enum TaskMode

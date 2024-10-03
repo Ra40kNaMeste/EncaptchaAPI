@@ -1,31 +1,44 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text;
 
 namespace EncaptchaAPI.Controllers
 {
-    public class CaptchaTaskController : Controller
+    public class CaptchaForCustomersTaskController : Controller
     {
-        public CaptchaTaskController(UserContext context, PricesSettings prices) 
+        public CaptchaForCustomersTaskController(UserContext context, PricesSettings prices) 
         { 
             _context = context;
             _prices = prices;
         }
 
         [Route("captures")]
+        [Authorize(Roles = nameof(Roles.Admin))]
         [HttpGet]
         public async Task<IAsyncEnumerable<CaptchaTask>> GetCaptures()
         {
-            return _context.Captures.AsAsyncEnumerable();
+            return _context.Captures
+                .Include(i=>i.Customer)
+                .Include(i=>i.Employee)
+                .AsAsyncEnumerable();
         }
 
         [Route("captcha/{id}")]
+        [Authorize(Roles = nameof(Roles.Customer))]
         [HttpGet]
         public async Task<IActionResult> GetCaptcha(int id)
         {
-            var captcha = await _context.Captures.FirstOrDefaultAsync(x => x.Id == id);
-            if(captcha == null)
+            var user = GetAuthUser();
+            if (user == null)
+                return BadRequest("User not found");
+            var captcha = await _context.Captures
+                .Include(i=>i.Customer)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if(captcha == null || captcha.Customer != user)
                 return NotFound();
             if (captcha.Mode != TaskMode.Completed)
                 return BadRequest("CAPTCHA_NOT_READY");
@@ -34,9 +47,14 @@ namespace EncaptchaAPI.Controllers
         }
 
         [Route("captures")]
+        [Authorize(Roles = nameof(Roles.Customer))]
         [HttpPost]
         public async Task<IActionResult> PostCaptcha(IFormFile file)
         {
+            var user = GetAuthUser();
+            if(user == null)
+                return BadRequest("User not found");
+
             var bytes = new byte[file.Length];
             using var stream = file.OpenReadStream();
             var sInt = sizeof(int);
@@ -46,12 +64,13 @@ namespace EncaptchaAPI.Controllers
             bytes = Convert.FromBase64String(Encoding.Default.GetString(bytes));
             var item = new CaptchaTask()
             {
+                Customer = user,
                 Captcha = bytes,
                 Mode = TaskMode.Created
             };
             await _context.Captures.AddAsync(item);
             await _context.SaveChangesAsync();
-            return Ok(item);
+            return Ok(item.Id);
         }
 
 
@@ -59,9 +78,25 @@ namespace EncaptchaAPI.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteCaptcha(int id)
         {
-            _context.Captures.Remove(_context.Captures.First(c => c.Id == id));
+            var user = GetAuthUser();
+            if(user == null)
+                return BadRequest("User not found");
+
+            var capture = await _context.Captures.FirstOrDefaultAsync(c => c.Id == id);
+            if(capture == null || capture.Customer != user)
+                return NotFound();
+
+            _context.Captures.Remove(capture);
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        private User? GetAuthUser()
+        {
+            string? email = ControllerContext.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email == null)
+                return null;
+            return _context.Users.FirstOrDefault(u => u.Email == email);
         }
 
         private readonly PricesSettings _prices;
