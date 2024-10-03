@@ -1,5 +1,4 @@
 ﻿using EncaptchaAPI;
-using EncaptchaAPI.Tools;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

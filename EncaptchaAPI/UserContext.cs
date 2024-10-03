@@ -71,5 +71,8 @@ namespace EncaptchaAPI
         public User Customer { get; set; }
         public User? Employee { get; set; }
         public byte[] Captcha { get; set; }
+        public DateTime? Working { get; set; }
+        public DateTime? Worked { get; set; }
+        public string? Solution { get; set; }
     }
 }

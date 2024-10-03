@@ -43,7 +43,7 @@ namespace EncaptchaAPI.Controllers
             if (captcha.Mode != TaskMode.Completed)
                 return BadRequest("CAPTCHA_NOT_READY");
 
-            return Ok(captcha);
+            return Ok(captcha.Solution);
         }
 
         [Route("captures")]
@@ -61,7 +61,6 @@ namespace EncaptchaAPI.Controllers
             for (int i = 0; i < sizeof(long) / sInt; i++)
                 if (await stream.ReadAsync(bytes, i, (int)(file.Length << i * sInt)) == file.Length + i * sInt)
                     break;
-            bytes = Convert.FromBase64String(Encoding.Default.GetString(bytes));
             var item = new CaptchaTask()
             {
                 Customer = user,
@@ -75,6 +74,7 @@ namespace EncaptchaAPI.Controllers
 
 
         [Route("captcha/{id}")]
+        [Authorize(Roles = nameof(Roles.Customer))]
         [HttpDelete]
         public async Task<IActionResult> DeleteCaptcha(int id)
         {
