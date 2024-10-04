@@ -7,3 +7,6 @@ services:
   mssql:
     container_name: sql-server
     image: mcr.microsoft.com/mssql/server:2022-latest
+  playwrighttests:
+    container_name: tests
+    build: ./Tests

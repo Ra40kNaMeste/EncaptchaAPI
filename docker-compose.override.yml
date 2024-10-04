@@ -5,8 +5,8 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
     ports:
-      - "8080"
-      - "8081"
+      - 8080:8080
+      - 8081:8081
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
@@ -18,6 +18,12 @@ services:
       - 1433:1433
     volumes:
       - sql-server-volume:/var/opt/mssql
-      
+  playwrighttests:
+    environment:
+      - SERVER_PORT=8081
+      - V_PORT_IP=172.25.208.1
+    ports:
+      - 1000:1000
+        
 volumes:
   sql-server-volume:

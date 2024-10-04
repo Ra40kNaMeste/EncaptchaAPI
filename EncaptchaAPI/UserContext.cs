@@ -19,13 +19,14 @@ namespace EncaptchaAPI
                 .HasIndex(i => i.Email)
                 .IsUnique();
 
-            builder.Entity<User>()
-                .HasMany(i => i.CustomeredTasks)
-                .WithOne(i => i.Customer);
+            builder.Entity<CaptchaTask>()
+                .HasOne(i => i.Customer)
+                .WithMany(i => i.CustomeredTasks)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<User>()
-                .HasMany(i => i.CompletedTasks)
-                .WithOne(i => i.Employee);
+            builder.Entity<CaptchaTask>()
+                .HasOne(i => i.Employee)
+                .WithMany(i => i.CompletedTasks);
 
             base.OnModelCreating(builder);
         }
