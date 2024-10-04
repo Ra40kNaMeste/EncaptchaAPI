@@ -1,91 +1,69 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace EncaptchaAPI.Controllers
 {
-    public class CustomerController : Controller
+    public class UserController : Controller
     {
-        public CustomerController(UserContext context) 
+        public UserController(UserContext context)
         {
             _context = context;
         }
 
-        [Route("users")]
+        [Route("user")]
+        [Authorize]
         [HttpGet]
-        public async Task<IAsyncEnumerable<UserView>> GetUsers()
+        public async Task<IActionResult> GetUser()
         {
-            return _context.Users.Select(i=>i as UserView).AsAsyncEnumerable();
+            var user = await GetAuthUser();
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            return Ok(new UserView(user));
         }
 
-        [Route("user/{id}")]
-        [HttpGet]
-        public async Task<IActionResult> GetUser(int id)
+        [Route("user")]
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser()
         {
-            var person = await _context.Users
-                .Include(i=>i.CustomeredTasks)
-                    .ThenInclude(i=>i.Employee)
-                .Include(i=>i.CompletedTasks)
-                    .ThenInclude(i=>i.Customer)
-                .FirstAsync(c => c.Id == id);
-
-            if(CanAuthUser(person))
-                return Ok(person);
-
-            return Ok(new UserView(person));
+            var user = await GetAuthUser();
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
-        [Route("user/{id}")]
+        [Route("user")]
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> ChangeRole(int id, Roles role)
+        public async Task<IActionResult> ChangeRole(Roles role)
         {
-            var target = await _context.Users.FirstOrDefaultAsync(c => c.Id == id);
+            var target = await GetAuthUser();
 
-            string? email = ControllerContext.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-            var user = await _context.Users.FirstOrDefaultAsync(i => i.Email == email);
-
-            if (user == null)
-                return BadRequest("Authorization error");
             if (target == null)
                 return BadRequest("User not found");
 
             //Условие изменения собственной роли обычным смертным
-            var CanSelfCondition = () => user == target && (role == Roles.Employee || role == Roles.Customer);
+            var CanSelfCondition = () => role == Roles.Employee || role == Roles.Customer;
 
             //Условие изменения роли для адимнистрации
-            var CanOtherCondition = () => user.Role >= Roles.Admin && user.Role <= target.Role;
+            var CanOtherCondition = () => target.Role >= Roles.Admin && role <= target.Role;
 
-            if (!CanSelfCondition() || ! CanOtherCondition())
+            if (!CanSelfCondition() || !CanOtherCondition())
                 return BadRequest("You don't have enough rights");
 
             target.Role = role;
             await _context.SaveChangesAsync();
             return Ok("Role was change succesfull");
         }
-
-        [Route("user/{id}")]
-        [Authorize]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var person = await _context.Users.FirstAsync(c => c.Id == id);
-            if (CanAuthUser(person))
-            {
-                _context.Users.Remove(person);
-                await _context.SaveChangesAsync();
-                return Ok(person);
-            }         
-            return BadRequest("You don't have enough rights");
-        }
-
-        private bool CanAuthUser(User target)
+        private async Task<User?> GetAuthUser()
         {
             string? email = ControllerContext.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-            return email != null && target != null && (target.Email == email || target.Role >= Roles.Admin);
+            return email == null? null: await _context.Users.FirstAsync(i=>i.Email == email);
         }
 
         private readonly UserContext _context;
