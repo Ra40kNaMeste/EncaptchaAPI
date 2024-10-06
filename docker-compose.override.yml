@@ -24,6 +24,10 @@ services:
       - V_PORT_IP=172.25.208.1
     ports:
       - 1000:1000
+    volumes:
+      - type: bind
+        source: ./tests/tests
+        target: /e2e/tests
         
 volumes:
   sql-server-volume:
