@@ -34,12 +34,21 @@ export async function registration(request:APIRequestContext, email:string, pass
     return token;
   }
 
-  export async function RemoveUser(request: APIRequestContext, token:Buffer){
-    const response = await request.delete('/user', {
-        headers:{
-          "Authorization":`Bearer ${token}`
-        }
-      });
-      expect(response.ok()).toBeTruthy();
-  }
+//Функция регистрации нового адимна
+export async function adminRegistration(request:APIRequestContext, email:string, password:string = "qwerty", title:number = 3):Promise<Buffer>{
+    const response = await request.post(`/registration/super/secret/path?Title=${title}&Email=${email}&Password=${password}&secretKey=${process.env.SUPER_SECRET_KEY}`);
+    expect(response.ok()).toBeTruthy();
+    const token = await response.body();
+    expect(token.length).toBeGreaterThan(10);
+    return token;
+}
+
+export async function RemoveUser(request: APIRequestContext, token:Buffer){
+const response = await request.delete('/user', {
+    headers:{
+        "Authorization":`Bearer ${token}`
+    }
+    });
+    expect(response.ok()).toBeTruthy();
+}
 

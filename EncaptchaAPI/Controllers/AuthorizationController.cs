@@ -10,6 +10,9 @@ using System.Text;
 
 namespace EncaptchaAPI.Controllers
 {
+    /// <summary>
+    /// Контроллер для регистрации и авторизации пользователей
+    /// </summary>
     public class AuthorizationController : Controller
     {
         public AuthorizationController(UserContext context, AuthorizationSettings settings) 
@@ -18,12 +21,22 @@ namespace EncaptchaAPI.Controllers
             _settings = settings;
         }
 
+        /// <summary>
+        /// Регистрация для обычных людей
+        /// </summary>
+        /// <param name="data">Параметры для регистрации</param>
+        /// <returns>jwt-токен пользователя</returns>
         [Route("registration")]
         [HttpPost]
         public async Task<IActionResult> RegistrationUser(RegisterData data)
         {
+            //Нельзя регистрироваться на высшие должности сайта
             if (data.Title >= Roles.Admin)
                 return BadRequest("Title isn't correct");
+            //Нельзя регистрироваться с одинаковым емайлом
+            if (_context.Users.Any(i=>i.Email == data.Email))
+                return BadRequest("Email isn't free. Change one, please");
+
             var item = new User()
             {
                 Email = data.Email,
@@ -35,6 +48,11 @@ namespace EncaptchaAPI.Controllers
             return Ok(CreateJwtToken(item));
         }
 
+        /// <summary>
+        /// Авторизация пользователя
+        /// </summary>
+        /// <param name="data">Параметры входа</param>
+        /// <returns>jwt-токен пользователя</returns>
         [Route("login")]
         [HttpPost]
         public async Task<IActionResult> LoginUser(LoginData data)
@@ -47,7 +65,40 @@ namespace EncaptchaAPI.Controllers
             return Ok(CreateJwtToken(user));
         }
 
+        /// <summary>
+        /// бэкдор для создания аккаунтов администрации сайта. В качестве секретного ключа необходимо передать ключ из настроек сервера
+        /// </summary>
+        /// <param name="data">Параметры пользователя</param>
+        /// <param name="secretKey">Секретный ключ из настроек</param>
+        /// <returns>jwt-токен пользователя</returns>
+        [Route("registration/super/secret/path")]
+        [HttpPost]
+        public async Task<IActionResult> SecretRegistrationUser(RegisterData data, string secretKey)
+        {
+            //Если не передан в качестве параметра ключ - отклоняем
+            if (!(secretKey == _settings.KeyForAdminRegistration))
+                return NotFound();
+            //Если пользователь уже был добавлен - отклоняем
+            if (_context.Users.Any(i => i.Email == data.Email))
+                return NotFound();
 
+            //Добавляем пользователя с любыми параметрами
+            var item = new User()
+            {
+                Email = data.Email,
+                Password = data.Password,
+                Role = data.Title
+            };
+            await _context.Users.AddAsync(item);
+            await _context.SaveChangesAsync();
+            return Ok(CreateJwtToken(item));
+        }
+
+        /// <summary>
+        /// Функция генерации jwt-токена для пользователя
+        /// </summary>
+        /// <param name="user">Пользователь</param>
+        /// <returns>jwt-токен</returns>
         private string CreateJwtToken(User user)
         {
             var claims = new List<Claim> 

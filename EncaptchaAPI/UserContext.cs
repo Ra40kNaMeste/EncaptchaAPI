@@ -34,7 +34,7 @@ namespace EncaptchaAPI
 
     public enum Roles
     {
-        Employee, Customer, Admin
+        Employee, Customer, Admin, SuperAdmin
     }
     public class User : UserView
     {

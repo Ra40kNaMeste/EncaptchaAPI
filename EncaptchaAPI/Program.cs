@@ -89,6 +89,7 @@ public class AuthorizationSettings
     public string Audience { get; set; }
     public string Key { get; set; }
     public int ExpiresHours { get; set; }
+    public string KeyForAdminRegistration { get; set; }
 }
 
 public class PricesSettings
