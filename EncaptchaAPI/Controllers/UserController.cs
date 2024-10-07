@@ -53,12 +53,13 @@ namespace EncaptchaAPI.Controllers
             //Условие изменения роли для адимнистрации
             var CanOtherCondition = () => target.Role >= Roles.Admin && role <= target.Role;
 
-            if (!CanSelfCondition() || !CanOtherCondition())
-                return BadRequest("You don't have enough rights");
-
-            target.Role = role;
-            await _context.SaveChangesAsync();
-            return Ok("Role was change succesfull");
+            if (CanSelfCondition() || CanOtherCondition())
+            {
+                target.Role = role;
+                await _context.SaveChangesAsync();
+                return Ok("Role was change succesfull");
+            }
+            return BadRequest("You don't have enough rights");
         }
         private async Task<User?> GetAuthUser()
         {

@@ -21,7 +21,7 @@ services:
   playwrighttests:
     environment:
       - SERVER_PORT=8081
-      - V_PORT_IP=172.25.208.1
+      - V_ADAPTER_IP=172.25.208.1
     ports:
       - 1000:1000
     volumes:
