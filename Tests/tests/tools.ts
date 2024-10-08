@@ -52,3 +52,21 @@ const response = await request.delete('/user', {
     expect(response.ok()).toBeTruthy();
 }
 
+export async function sendFile(request:APIRequestContext, url:string, path:string, token:Buffer):Promise<APIResponse>{
+  const form = new FormData();
+  form.set('file', new File(['file'], path));
+  const response = await request.post(url, {
+    headers: {
+      Accept: "*/*",
+      ContentType: "multipart/form-data",
+      Authorization: `Bearer ${token}`
+    },
+    multipart: form
+  });
+  expect(response.ok()).toBeTruthy();
+  return response;
+}
+
+export function delay(ms: number) {
+  return new Promise( resolve => setTimeout(resolve, ms) );
+}

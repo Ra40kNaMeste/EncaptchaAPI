@@ -104,7 +104,7 @@ namespace EncaptchaAPI.Controllers
             var claims = new List<Claim> 
             { 
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, Enum.GetName(user.Role))
+                new Claim(ClaimTypes.Role, Enum.GetName(user.Role))
             };
 
             var jwt = new JwtSecurityToken(

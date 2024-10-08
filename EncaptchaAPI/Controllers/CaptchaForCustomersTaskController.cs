@@ -16,14 +16,17 @@ namespace EncaptchaAPI.Controllers
         }
 
         [Route("captures")]
-        [Authorize(Roles = nameof(Roles.Admin))]
+        [Authorize]
         [HttpGet]
-        public async Task<IAsyncEnumerable<CaptchaTask>> GetCaptures()
+        public async Task<IActionResult> GetCaptures()
         {
-            return _context.Captures
+            var role = Enum.Parse<Roles>(ControllerContext.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value);
+            if (role < Roles.Admin)
+                return BadRequest("You don't have enough rights");
+            return Ok(_context.Captures
                 .Include(i=>i.Customer)
                 .Include(i=>i.Employee)
-                .AsAsyncEnumerable();
+                .AsAsyncEnumerable());
         }
 
         [Route("captcha/{id}")]
@@ -54,7 +57,8 @@ namespace EncaptchaAPI.Controllers
             var user = GetAuthUser();
             if(user == null)
                 return BadRequest("User not found");
-
+            if (file == null)
+                return BadRequest("Send file, please");
             var bytes = new byte[file.Length];
             using var stream = file.OpenReadStream();
             var sInt = sizeof(int);
