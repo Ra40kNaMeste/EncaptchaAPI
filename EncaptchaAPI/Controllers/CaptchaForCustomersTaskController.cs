@@ -15,6 +15,10 @@ namespace EncaptchaAPI.Controllers
             _prices = prices;
         }
 
+        /// <summary>
+        /// Вывод всех капч только для администрации
+        /// </summary>
+        /// <returns></returns>
         [Route("captures")]
         [Authorize]
         [HttpGet]
@@ -29,6 +33,11 @@ namespace EncaptchaAPI.Controllers
                 .AsAsyncEnumerable());
         }
 
+        /// <summary>
+        /// Выдаёт результат выполнения капчи
+        /// </summary>
+        /// <param name="id">Id капчи</param>
+        /// <returns></returns>
         [Route("captcha/{id}")]
         [Authorize(Roles = nameof(Roles.Customer))]
         [HttpGet]
@@ -49,6 +58,11 @@ namespace EncaptchaAPI.Controllers
             return Ok(captcha.Solution);
         }
 
+        /// <summary>
+        /// Отправить капчу на выполнение
+        /// </summary>
+        /// <param name="file">Капча</param>
+        /// <returns>Id капчи</returns>
         [Route("captures")]
         [Authorize(Roles = nameof(Roles.Customer))]
         [HttpPost]
@@ -76,7 +90,11 @@ namespace EncaptchaAPI.Controllers
             return Ok(item.Id);
         }
 
-
+        /// <summary>
+        /// Отменить добавленную капчу на выполнение
+        /// </summary>
+        /// <param name="id">Id капчи</param>
+        /// <returns></returns>
         [Route("captcha/{id}")]
         [Authorize(Roles = nameof(Roles.Customer))]
         [HttpDelete]

@@ -15,6 +15,12 @@ namespace EncaptchaAPI.Controllers
             _prices = prices;
         }
 
+        object locker = new();
+
+        /// <summary>
+        /// Выдаёт самую древнюю задачу заказчику и закреляет её под ним
+        /// </summary>
+        /// <returns>Id задачи</returns>
         [Route("emp/captcha")]
         [Authorize(Roles = nameof(Roles.Employee))]
         [HttpGet]
@@ -24,18 +30,28 @@ namespace EncaptchaAPI.Controllers
             if (user == null)
                 return BadRequest("User not found");
 
-            var captcha = await _context.Captures
-                .FirstOrDefaultAsync(x => x.Mode == TaskMode.Created);
+            CaptchaTask? captcha;
+            lock (locker)
+            {
+                captcha = _context.Captures
+                .Reverse()
+                .FirstOrDefault(x => x.Mode == TaskMode.Created);
 
-            if (captcha == null)
-                return NotFound();
-            captcha.Mode = TaskMode.AtWork;
-            captcha.Working = DateTime.Now;
-            captcha.Employee = user;
-            await _context.SaveChangesAsync();
+                if (captcha == null)
+                    return NotFound();
+                captcha.Mode = TaskMode.AtWork;
+                captcha.Working = DateTime.Now;
+                captcha.Employee = user;
+                _context.SaveChanges();
+            }
             return Ok(captcha.Id);
         }
 
+        /// <summary>
+        /// Выдаёт изображение кптчи по Id задачи
+        /// </summary>
+        /// <param name="id">Id капчи</param>
+        /// <returns>Изображение задачи</returns>
         [Route("emp/captcha/{id}")]
         [Authorize(Roles = nameof(Roles.Employee))]
         [HttpGet]
@@ -54,6 +70,12 @@ namespace EncaptchaAPI.Controllers
             return File(captcha.Captcha, "image/jpeg");
         }
 
+        /// <summary>
+        /// Добавить результат капчи
+        /// </summary>
+        /// <param name="result">результат</param>
+        /// <param name="id">Id капчи</param>
+        /// <returns></returns>
         [Route("emp/captcha/{id}")]
         [Authorize(Roles = nameof(Roles.Employee))]
         [HttpPost]
@@ -76,7 +98,11 @@ namespace EncaptchaAPI.Controllers
             return Ok();
         }
 
-
+        /// <summary>
+        /// Отказ от выполнения капчи
+        /// </summary>
+        /// <param name="id">Id капчи</param>
+        /// <returns></returns>
         [Route("emp/captcha/{id}")]
         [Authorize(Roles = nameof(Roles.Employee))]
         [HttpDelete]
