@@ -14,6 +14,10 @@ namespace EncaptchaAPI.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Получение списка всех зарегистрированных пользователей
+        /// </summary>
+        /// <returns></returns>
         [Route("users")]
         [HttpGet]
         public async Task<IAsyncEnumerable<UserView>> GetUsers()
@@ -21,6 +25,11 @@ namespace EncaptchaAPI.Controllers
             return _context.Users.Select(i=>i as UserView).AsAsyncEnumerable();
         }
 
+        /// <summary>
+        /// Получение информации о конкретном пользователе
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Route("user/{id}")]
         [HttpGet]
         public async Task<IActionResult> GetUser(int id)
@@ -32,12 +41,19 @@ namespace EncaptchaAPI.Controllers
                     .ThenInclude(i=>i.Customer)
                 .FirstAsync(c => c.Id == id);
 
+            //Если пользователь требует информацию о себе, то даём полную, иначе - урезанную
             if(CanAuthUser(person))
                 return Ok(person);
 
             return Ok(new UserView(person));
         }
 
+        /// <summary>
+        /// Изменение роли пользователя
+        /// </summary>
+        /// <param name="id">Id пользователя</param>
+        /// <param name="role">Роль пользователя</param>
+        /// <returns></returns>
         [Route("user/{id}")]
         [Authorize]
         [HttpPut]
@@ -67,6 +83,11 @@ namespace EncaptchaAPI.Controllers
             return Ok("Role was change succesfull");
         }
 
+        /// <summary>
+        /// Удаление пользователя
+        /// </summary>
+        /// <param name="id">Id пользователя</param>
+        /// <returns></returns>
         [Route("user/{id}")]
         [Authorize]
         [HttpDelete]

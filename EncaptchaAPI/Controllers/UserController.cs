@@ -13,6 +13,10 @@ namespace EncaptchaAPI.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Получение информации о авторизированном пользователе
+        /// </summary>
+        /// <returns></returns>
         [Route("user")]
         [Authorize]
         [HttpGet]
@@ -24,6 +28,10 @@ namespace EncaptchaAPI.Controllers
             return Ok(new UserView(user));
         }
 
+        /// <summary>
+        /// Удаление авторизированного пользователя
+        /// </summary>
+        /// <returns></returns>
         [Route("user")]
         [Authorize]
         [HttpDelete]
@@ -37,6 +45,11 @@ namespace EncaptchaAPI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Изменение роли авторизированного пользователя
+        /// </summary>
+        /// <param name="role">Новая роль</param>
+        /// <returns></returns>
         [Route("user")]
         [Authorize]
         [HttpPut]

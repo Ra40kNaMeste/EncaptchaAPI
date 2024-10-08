@@ -46,6 +46,9 @@ namespace EncaptchaAPI
         [JsonIgnore]
         public List<CaptchaTask> CompletedTasks { get; set; }
     }
+    /// <summary>
+    /// Базовая информация пользователя. Наследование здесь только для сокращения кода
+    /// </summary>
 
     public class UserView
     {
@@ -67,6 +70,9 @@ namespace EncaptchaAPI
         Created, AtWork, Completed  
     }
 
+    /// <summary>
+    /// Информация о капче
+    /// </summary>
     public class CaptchaTask
     {
         [Key]
