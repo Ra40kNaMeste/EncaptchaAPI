@@ -34,7 +34,6 @@ namespace EncaptchaAPI.Controllers
             lock (locker)
             {
                 captcha = _context.Captures
-                .Reverse()
                 .FirstOrDefault(x => x.Mode == TaskMode.Created);
 
                 if (captcha == null)
